@@ -1,40 +1,45 @@
+
 # Car Rental Application
 
-Εφαρμογή desktop διαχείρισης ενοικίασης αυτοκινήτων, υλοποιημένη με WinUI 3 και .NET 8.
+Desktop car rental management application developed using WinUI 3 and .NET 8.
 
-## Απαιτήσεις
+## Requirements
 
-- Windows 10 (έκδοση 17763 ή νεότερη) ή Windows 11
+- Windows 10 (version 17763 or later) or Windows 11
 - .NET 8 SDK
-- Visual Studio 2022 με τα workloads **.NET desktop development** και **Windows application development**
-- Ενεργοποιημένο το **Developer Mode** των Windows για εκτέλεση της εφαρμογής από το Visual Studio
+- Visual Studio 2022 with the **.NET desktop development** and **Windows application development** workloads
+- Windows **Developer Mode** enabled to run the application from Visual Studio
 
-## Άνοιγμα του GUI
+## Launching the GUI
 
-1. Κατεβάστε ή κάντε clone το repository σε υπολογιστή Windows.
-2. Ανοίξτε το `CarRentalApplication.slnx` με το Visual Studio 2022.
-3. Επιλέξτε `CarRentalApplication` ως startup project.
-4. Επιλέξτε διαμόρφωση `Debug` και πλατφόρμα `x64`.
-5. Πατήστε **F5** για build και εκκίνηση του GUI.
+1. Download or clone the repository to a Windows computer.
+2. Open `CarRentalApplication.slnx` with Visual Studio 2022.
+3. Set `CarRentalApplication` as the startup project.
+4. Select the `Debug` configuration and `x64` platform.
+5. Press **F5** to build and launch the GUI.
 
-Στην πρώτη εκτέλεση, η εφαρμογή δημιουργεί τη βάση SQLite στον τοπικό φάκελο δεδομένων της εφαρμογής. Δεν απαιτείται ξεχωριστό αρχείο βάσης δεδομένων στο repository.
+On the first launch, the application automatically creates the SQLite database in the local application data directory. No separate database file is required in the repository.
 
-## Εγκατάσταση από GitHub Releases
+## Installation from GitHub Releases
 
-Τα έτοιμα πακέτα εγκατάστασης διατίθενται στη σελίδα [Releases](https://github.com/sitecreator983/CarRentalApplication/releases/latest). Για δοκιμαστική εγκατάσταση εκτός Microsoft Store:
+Prebuilt installation packages are available on the [Releases](https://github.com/sitecreator983/CarRentalApplication/releases/latest) page.
 
-1. Κατεβάστε τα `CarRentalApplication.cer` και `CarRentalApplication_x64.appinstaller` από το τελευταίο Release.
-2. Εμπιστευτείτε το δημόσιο πιστοποιητικό για τον τρέχοντα λογαριασμό Windows:
+For installation outside the Microsoft Store:
+
+1. Download `CarRentalApplication.cer` and `CarRentalApplication_x64.appinstaller` from the latest release.
+2. Trust the public certificate for the current Windows user account:
 
    ```powershell
    Import-Certificate -FilePath .\CarRentalApplication.cer -CertStoreLocation Cert:\CurrentUser\TrustedPeople
    ```
 
-3. Ανοίξτε το `CarRentalApplication_x64.appinstaller` και επιλέξτε **Install**.
+3. Open `CarRentalApplication_x64.appinstaller` and select **Install**.
 
-Το πακέτο υπογράφεται με αυτοϋπογεγραμμένο πιστοποιητικό δοκιμών. Αυτό απαιτεί χειροκίνητη εμπιστοσύνη του πιστοποιητικού σε κάθε υπολογιστή· για ευρεία διανομή προτιμάται πιστοποιητικό από έμπιστη αρχή ή το Microsoft Store. Το ιδιωτικό κλειδί του πιστοποιητικού δεν διανέμεται και δεν πρέπει να ανέβει στο GitHub.
+The installation package is signed with a self-signed test certificate. This requires manually trusting the certificate on each computer. For public distribution, a certificate issued by a trusted Certificate Authority (CA) or distribution through the Microsoft Store is recommended.
 
-## Δομή
+The certificate's private key is not distributed and must never be uploaded to GitHub.
 
-- `CarRentalApplication/` — WinUI 3 desktop εφαρμογή και κώδικας
-- `tools/DatabaseMaintenance/` — βοηθητικό εργαλείο συντήρησης και ελέγχου βάσης δεδομένων
+## Project Structure
+
+- `CarRentalApplication/` — WinUI 3 desktop application and source code
+- `tools/DatabaseMaintenance/` — Utility tool for database maintenance and validation
