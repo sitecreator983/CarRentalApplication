@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="CarRentalApplication.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CarRentalApplication.Controls"
+    Title="Car Rental — Customer and vehicle">
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <TabView IsAddTabButtonVisible="False" CanDragTabs="False" CanReorderTabs="False">
+        <TabViewItem Header="New rental" IsClosable="False">
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
+        <Grid MinWidth="860" MaxWidth="1100" Margin="20" RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock Text="New rental" FontSize="26" FontWeight="SemiBold" />
+                <TextBlock Text="Create a customer or select an existing customer to book a vehicle." TextWrapping="Wrap" />
+            </StackPanel>
+            <Grid Grid.Row="1" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Padding="18" CornerRadius="12" VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Customer registration" FontSize="20" FontWeight="SemiBold" />
+                        <TextBlock Text="All fields are required." FontSize="12" />
+                        <StackPanel x:Name="CustomerFields" Spacing="8">
+                            <TextBox x:Name="FirstNameBox" Header="First name" PlaceholderText="e.g. George" MaxLength="100" />
+                            <TextBox x:Name="LastNameBox" Header="Last name" PlaceholderText="e.g. Smith" MaxLength="100" />
+                            <TextBox x:Name="PhoneBox" Header="Phone" PlaceholderText="e.g. +30 6912345678" MaxLength="30">
+                                <TextBox.InputScope><InputScope><InputScope.Names><InputScopeName NameValue="TelephoneNumber" /></InputScope.Names></InputScope></TextBox.InputScope>
+                            </TextBox>
+                            <TextBox x:Name="EmailBox" Header="Email" PlaceholderText="e.g. name@example.com" MaxLength="254">
+                                <TextBox.InputScope><InputScope><InputScope.Names><InputScopeName NameValue="EmailSmtpAddress" /></InputScope.Names></InputScope></TextBox.InputScope>
+                            </TextBox>
+                        </StackPanel>
+                        <InfoBar x:Name="FormMessage" IsOpen="False" IsClosable="True" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button x:Name="SaveButton" Content="Register customer" Style="{StaticResource AccentButtonStyle}" Click="SaveCustomer_Click" />
+                            <Button x:Name="ResetButton" Content="Clear" Click="ClearForm_Click" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                <Border x:Name="CarSelectionPanel" Grid.Column="1" Padding="18" CornerRadius="12" VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Vehicle selection" FontSize="20" FontWeight="SemiBold" />
+                        <ComboBox x:Name="ReservationCustomerPicker" Header="Customer full name" PlaceholderText="Select a registered customer" DisplayMemberPath="SelectionLabel" HorizontalAlignment="Stretch" SelectionChanged="ReservationCustomerPicker_SelectionChanged" />
+                        <Button Content="Reload customers" Click="ReloadCustomers_Click" />
+                        <CalendarDatePicker x:Name="PickupDatePicker" Header="Pickup date" PlaceholderText="Select a date" HorizontalAlignment="Stretch" DateChanged="ReservationDate_DateChanged" />
+                        <CalendarDatePicker x:Name="ReturnDatePicker" Header="Return date" PlaceholderText="Select a date" HorizontalAlignment="Stretch" DateChanged="ReservationDate_DateChanged" />
+                        <ComboBox x:Name="ModelPicker" Header="Vehicle model" PlaceholderText="Select a model" HorizontalAlignment="Stretch" SelectionChanged="ModelPicker_SelectionChanged" />
+                        <Button x:Name="ReloadModelsButton" Content="Reload models" Click="ReloadModels_Click" />
+                        <Button x:Name="CheckAvailabilityButton" Content="Check availability" IsEnabled="False" Style="{StaticResource AccentButtonStyle}" Click="CheckAvailability_Click" />
+                        <InfoBar x:Name="AvailabilityMessage" IsOpen="False" IsClosable="True" />
+                        <TextBlock x:Name="AvailablePlatesHeading" Text="Available license plates" FontWeight="SemiBold" Visibility="Collapsed" />
+                        <ListView x:Name="AvailablePlatesList" MaxHeight="220" SelectionMode="Single" Visibility="Collapsed" SelectionChanged="AvailablePlatesList_SelectionChanged" />
+                        <Border x:Name="RentalPricePanel" Padding="14" CornerRadius="8" Visibility="Collapsed" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" BorderThickness="1">
+                            <StackPanel Spacing="5">
+                                <TextBlock Text="Rental price" FontSize="18" FontWeight="SemiBold" />
+                                <TextBlock x:Name="DailyRateText" />
+                                <TextBlock x:Name="RentalDaysText" />
+                                <TextBlock x:Name="TotalRentalPriceText" FontSize="20" FontWeight="SemiBold" />
+                                <Button x:Name="ReserveButton" Content="Confirm reservation" IsEnabled="False" Style="{StaticResource AccentButtonStyle}" Click="ReserveButton_Click" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+        </TabViewItem>
+        <TabViewItem Header="Reservations" IsClosable="False">
+            <Grid Margin="24" RowSpacing="14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="Reservations" FontSize="26" FontWeight="SemiBold" />
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10">
+                    <Button Content="Reload reservations" Click="ReloadReservations_Click" />
+                    <Button x:Name="EditReservationButton" Content="Edit selected reservation" IsEnabled="False" Click="EditReservation_Click" />
+                    <Button x:Name="DeleteReservationButton" Content="Delete selected reservation" IsEnabled="False" Click="DeleteReservation_Click" />
+                    <TextBlock x:Name="ReservationCountText" VerticalAlignment="Center" />
+                </StackPanel>
+                <Grid Grid.Row="2" ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1.4*" />
+                        <ColumnDefinition Width="1.3*" />
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="170" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="ReservationCustomerFilter" Header="Customer" PlaceholderText="Name or email"
+                             TextChanged="ReservationTextFilter_TextChanged" />
+                    <TextBox x:Name="ReservationPlateFilter" Grid.Column="1" Header="License plate" PlaceholderText="Plate"
+                             TextChanged="ReservationTextFilter_TextChanged" />
+                    <CalendarDatePicker x:Name="ReservationDateFilter" Grid.Column="2" Header="Date" PlaceholderText="Select a date"
+                                        DateChanged="ReservationDateFilter_DateChanged" />
+                    <ComboBox x:Name="ReservationPeriodFilter" Grid.Column="3" Header="Period" SelectedIndex="0"
+                              HorizontalAlignment="Stretch" SelectionChanged="ReservationComboFilter_SelectionChanged">
+                        <x:String>Day</x:String>
+                        <x:String>Week</x:String>
+                    </ComboBox>
+                    <ComboBox x:Name="ReservationStatusFilter" Grid.Column="4" Header="Status" SelectedIndex="0"
+                              HorizontalAlignment="Stretch" SelectionChanged="ReservationComboFilter_SelectionChanged">
+                        <x:String>All statuses</x:String>
+                        <x:String>Confirmed</x:String>
+                        <x:String>Cancelled</x:String>
+                    </ComboBox>
+                    <Button Grid.Column="5" Content="Clear filters" VerticalAlignment="Bottom" Click="ClearReservationFilters_Click" />
+                </Grid>
+                <InfoBar x:Name="ReservationsMessage" Grid.Row="3" IsOpen="False" IsClosable="True" />
+                <ScrollViewer Grid.Row="4" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Auto" VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled">
+                    <Grid MinWidth="1200" RowSpacing="4">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <Grid Padding="12,8" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="55" /><ColumnDefinition Width="2*" /><ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="130" /><ColumnDefinition Width="130" /><ColumnDefinition Width="120" /><ColumnDefinition Width="120" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="ID" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="Customer" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="2" Text="Vehicle" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="3" Text="Pickup" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="4" Text="Return" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="5" Text="Status" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="6" Text="Total price" FontWeight="SemiBold" />
+                        </Grid>
+                        <ListView x:Name="ReservationsTable" Grid.Row="1" SelectionMode="Single" SelectionChanged="ReservationsTable_SelectionChanged">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="12,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="55" /><ColumnDefinition Width="2*" /><ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="130" /><ColumnDefinition Width="130" /><ColumnDefinition Width="120" /><ColumnDefinition Width="120" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Id}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding CustomerDisplay}" TextWrapping="Wrap" Margin="0,0,8,0" />
+                                        <TextBlock Grid.Column="2" Text="{Binding VehicleDisplay}" TextWrapping="Wrap" Margin="0,0,8,0" />
+                                        <TextBlock Grid.Column="3" Text="{Binding PickupDateDisplay}" />
+                                        <TextBlock Grid.Column="4" Text="{Binding ReturnDateDisplay}" />
+                                        <TextBlock Grid.Column="5" Text="{Binding Status}" />
+                                        <TextBlock Grid.Column="6" Text="{Binding TotalPriceDisplay}" FontWeight="SemiBold" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </TabViewItem>
+        <TabViewItem Header="Customers" IsClosable="False">
+            <Grid Margin="24" RowSpacing="14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="Registered customers" FontSize="26" FontWeight="SemiBold" />
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10">
+                    <Button Content="Reload customers" Click="ReloadCustomerTable_Click" />
+                    <Button x:Name="EditCustomerButton" Content="Edit selected customer" IsEnabled="False" Click="EditCustomer_Click" />
+                    <Button x:Name="DeleteCustomerButton" Content="Delete selected customer" IsEnabled="False" Click="DeleteCustomer_Click" />
+                    <TextBlock x:Name="CustomerCountText" VerticalAlignment="Center" />
+                </StackPanel>
+                <InfoBar x:Name="CustomerTableMessage" Grid.Row="2" IsOpen="False" IsClosable="True" />
+                <ScrollViewer Grid.Row="3" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Auto" VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled">
+                    <Grid MinWidth="850" RowSpacing="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid Padding="12,8" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="170" /><ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="ID" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="First name" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="2" Text="Last name" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="3" Text="Phone" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="4" Text="Email" FontWeight="SemiBold" />
+                        </Grid>
+                        <ListView x:Name="CustomersTable" Grid.Row="1" SelectionMode="Single" SelectionChanged="CustomersTable_SelectionChanged">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="12,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="70" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="170" /><ColumnDefinition Width="2*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Id}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding FirstName}" TextWrapping="Wrap" Margin="0,0,8,0" />
+                                        <TextBlock Grid.Column="2" Text="{Binding LastName}" TextWrapping="Wrap" Margin="0,0,8,0" />
+                                        <TextBlock Grid.Column="3" Text="{Binding Phone}" TextWrapping="Wrap" Margin="0,0,8,0" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Email}" TextWrapping="Wrap" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </TabViewItem>
+        <TabViewItem Header="New vehicle" IsClosable="False">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <StackPanel MinWidth="900" MaxWidth="1100" Margin="24" Spacing="16" HorizontalAlignment="Stretch">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Register a new vehicle" FontSize="26" FontWeight="SemiBold" />
+                        <TextBlock Text="Vehicle and model-feature records are saved together. Fields marked as required must be completed." TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Padding="18" CornerRadius="12" VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Vehicle details" FontSize="20" FontWeight="SemiBold" />
+                                <TextBox x:Name="VehicleMakeBox" Header="Brand *" PlaceholderText="e.g. Toyota" MaxLength="100" />
+                                <TextBox x:Name="VehicleModelBox" Header="Model *" PlaceholderText="e.g. Corolla" MaxLength="100" />
+                                <NumberBox x:Name="VehicleYearBox" Header="Model year *" Minimum="1900" Maximum="2100" SpinButtonPlacementMode="Compact" />
+                                <ComboBox x:Name="VehicleCategoryPicker" Header="Category *" PlaceholderText="Select a category" HorizontalAlignment="Stretch">
+                                    <x:String>Hatchback</x:String><x:String>SUV</x:String><x:String>Sedan</x:String>
+                                </ComboBox>
+                                <ComboBox x:Name="VehicleTransmissionPicker" Header="Transmission *" PlaceholderText="Select transmission" HorizontalAlignment="Stretch">
+                                    <x:String>Manual</x:String><x:String>Automatic</x:String>
+                                </ComboBox>
+                                <NumberBox x:Name="VehicleEngineBox" Header="Engine capacity (cc) *" Minimum="1" Maximum="10000" SpinButtonPlacementMode="Compact" />
+                                <NumberBox x:Name="VehicleHorsepowerBox" Header="Horsepower *" Minimum="1" Maximum="3000" SpinButtonPlacementMode="Compact" />
+                                <TextBox x:Name="VehiclePlateBox" Header="License plate *" PlaceholderText="e.g. IKA-1234" MaxLength="20" CharacterCasing="Upper" />
+                                <NumberBox x:Name="VehicleRateBox" Header="Rental price per day (€) *" Minimum="0" Maximum="100000" SmallChange="1" SpinButtonPlacementMode="Compact" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Padding="18" CornerRadius="12" VerticalAlignment="Top" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Model equipment" FontSize="20" FontWeight="SemiBold" />
+                                <TextBox x:Name="VehicleRoofBox" Header="Roof *" PlaceholderText="e.g. Panoramic glass roof" MaxLength="100" />
+                                <TextBox x:Name="VehicleColorBox" Header="Color *" PlaceholderText="e.g. Pearl White" MaxLength="100" />
+                                <TextBox x:Name="VehicleFuelBox" Header="Fuel type *" PlaceholderText="e.g. Petrol, diesel, hybrid" MaxLength="100" />
+                                <NumberBox x:Name="VehicleSeatsBox" Header="Seats *" Minimum="1" Maximum="100" SpinButtonPlacementMode="Compact" />
+                                <NumberBox x:Name="VehicleDoorsBox" Header="Doors *" Minimum="1" Maximum="20" SpinButtonPlacementMode="Compact" />
+                                <Grid ColumnSpacing="16" RowSpacing="8">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                                    <ToggleSwitch x:Name="VehicleCarPlayToggle" Header="Apple CarPlay" />
+                                    <ToggleSwitch x:Name="VehicleAndroidToggle" Grid.Column="1" Header="Android Auto" />
+                                    <ToggleSwitch x:Name="VehicleAirConditioningToggle" Grid.Row="1" Header="Air conditioning" />
+                                    <ToggleSwitch x:Name="VehicleParkingSensorsToggle" Grid.Row="1" Grid.Column="1" Header="Parking sensors" />
+                                    <ToggleSwitch x:Name="VehicleRearCameraToggle" Grid.Row="2" Header="Rear camera" />
+                                </Grid>
+                                <TextBox x:Name="VehicleAdditionalFeaturesBox" Header="Additional features" PlaceholderText="e.g. Bluetooth, cruise control, lane assist" MaxLength="1000" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <InfoBar x:Name="VehicleRegistrationMessage" IsOpen="False" IsClosable="True" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="SaveVehicleButton" Content="Register vehicle" Style="{StaticResource AccentButtonStyle}" Click="SaveVehicle_Click" />
+                        <Button Content="Clear fields" Click="ClearVehicleForm_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </TabViewItem>
+        <TabViewItem Header="Vehicles" IsClosable="False">
+            <Grid Margin="24" RowSpacing="14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="Registered vehicles" FontSize="26" FontWeight="SemiBold" />
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10">
+                    <Button Content="Reload vehicles" Click="ReloadVehicles_Click" />
+                    <Button x:Name="EditVehicleButton" Content="Edit selected vehicle" IsEnabled="False" Click="EditVehicle_Click" />
+                    <Button x:Name="DeleteVehicleButton" Content="Delete selected vehicle" IsEnabled="False" Click="DeleteVehicle_Click" />
+                    <TextBlock x:Name="VehicleCountText" VerticalAlignment="Center" />
+                </StackPanel>
+                <InfoBar x:Name="VehiclesMessage" Grid.Row="2" IsOpen="False" IsClosable="True" />
+                <ScrollViewer Grid.Row="3" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Auto" VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled">
+                    <Grid MinWidth="1250" RowSpacing="4">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <Grid Padding="12,8" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="55" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="90" /><ColumnDefinition Width="120" /><ColumnDefinition Width="120" />
+                                <ColumnDefinition Width="100" /><ColumnDefinition Width="90" /><ColumnDefinition Width="130" /><ColumnDefinition Width="120" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="ID" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="Brand" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="2" Text="Model" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="3" Text="Year" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="4" Text="Category" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="5" Text="Transmission" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="6" Text="Engine (cc)" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="7" Text="HP" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="8" Text="License plate" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="9" Text="Price / day" FontWeight="SemiBold" />
+                        </Grid>
+                        <ListView x:Name="VehiclesTable" Grid.Row="1" SelectionMode="Single" SelectionChanged="VehiclesTable_SelectionChanged">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="12,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="55" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="90" /><ColumnDefinition Width="120" /><ColumnDefinition Width="120" />
+                                            <ColumnDefinition Width="100" /><ColumnDefinition Width="90" /><ColumnDefinition Width="130" /><ColumnDefinition Width="120" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Id}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Make}" TextWrapping="Wrap" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Model}" TextWrapping="Wrap" />
+                                        <TextBlock Grid.Column="3" Text="{Binding ModelYear}" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Category}" />
+                                        <TextBlock Grid.Column="5" Text="{Binding Transmission}" />
+                                        <TextBlock Grid.Column="6" Text="{Binding EngineCc}" />
+                                        <TextBlock Grid.Column="7" Text="{Binding Horsepower}" />
+                                        <TextBlock Grid.Column="8" Text="{Binding LicensePlate}" />
+                                        <TextBlock Grid.Column="9" Text="{Binding DailyRateDisplay}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </TabViewItem>
+        <TabViewItem Header="Maintenance" IsClosable="False">
+            <Grid Margin="24" RowSpacing="14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Vehicle maintenance" FontSize="26" FontWeight="SemiBold" />
+                    <TextBlock Text="Schedule a period during which a vehicle will be unavailable for rental." TextWrapping="Wrap" />
+                </StackPanel>
+                <Grid Grid.Row="1" ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" /><ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="MaintenanceVehiclePicker" Header="Vehicle" PlaceholderText="Select a registered vehicle" DisplayMemberPath="SelectionLabel" HorizontalAlignment="Stretch" SelectionChanged="MaintenanceInput_Changed" />
+                    <CalendarDatePicker x:Name="MaintenanceStartPicker" Grid.Column="1" Header="Start date" PlaceholderText="Select start date" HorizontalAlignment="Stretch" DateChanged="MaintenanceDate_Changed" />
+                    <CalendarDatePicker x:Name="MaintenanceEndPicker" Grid.Column="2" Header="End date" PlaceholderText="Select end date" HorizontalAlignment="Stretch" DateChanged="MaintenanceDate_Changed" />
+                    <Button x:Name="ScheduleMaintenanceButton" Grid.Column="3" Content="Schedule maintenance" IsEnabled="False" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Bottom" Click="ScheduleMaintenance_Click" />
+                </Grid>
+                <InfoBar x:Name="MaintenanceMessage" Grid.Row="2" IsOpen="False" IsClosable="True" />
+                <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10">
+                    <Button Content="Reload maintenance" Click="ReloadMaintenance_Click" />
+                    <Button x:Name="DeleteMaintenanceButton" Content="Delete selected period" IsEnabled="False" Click="DeleteMaintenance_Click" />
+                    <TextBlock x:Name="MaintenanceCountText" VerticalAlignment="Center" />
+                </StackPanel>
+                <Grid Grid.Row="4" RowSpacing="4">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                    <Grid Padding="12,8" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="2*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <TextBlock Text="ID" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="Vehicle" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="2" Text="Start date" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="3" Text="End date" FontWeight="SemiBold" />
+                    </Grid>
+                    <ListView x:Name="MaintenanceTable" Grid.Row="1" SelectionMode="Single" SelectionChanged="MaintenanceTable_SelectionChanged">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="12,10">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="2*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Id}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding VehicleDisplay}" />
+                                    <TextBlock Grid.Column="2" Text="{Binding StartDateDisplay}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding EndDateDisplay}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Grid>
+        </TabViewItem>
+        <TabViewItem Header="Prices" IsClosable="False">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="24" Spacing="16" HorizontalAlignment="Stretch">
+                    <TextBlock Text="Prices" FontSize="26" FontWeight="SemiBold" />
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="CatalogBrandPicker" Header="Brand" HorizontalAlignment="Stretch" SelectionChanged="CatalogBrandPicker_SelectionChanged" />
+                        <ComboBox x:Name="CatalogModelPicker" Grid.Column="1" Header="Model" PlaceholderText="All models" HorizontalAlignment="Stretch" SelectionChanged="CatalogModelPicker_SelectionChanged" />
+                        <Button Grid.Column="2" Content="Reload" VerticalAlignment="Bottom" Click="ReloadCatalog_Click" />
+                        <Button x:Name="EditPriceButton" Grid.Column="3" Content="Edit selected price" IsEnabled="False" VerticalAlignment="Bottom" Click="EditPrice_Click" />
+                    </Grid>
+                    <InfoBar x:Name="CatalogMessage" IsOpen="False" IsClosable="True" />
+                    <TextBlock x:Name="CatalogCount" FontSize="12" />
+                    <Grid ColumnSpacing="12" Padding="12,8" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Brand" FontWeight="SemiBold" HorizontalTextAlignment="Center" />
+                        <TextBlock Grid.Column="1" Text="Model" FontWeight="SemiBold" HorizontalTextAlignment="Center" />
+                        <TextBlock Grid.Column="2" Text="Rental / day" FontWeight="SemiBold" HorizontalTextAlignment="Center" />
+                    </Grid>
+                    <ListView x:Name="CatalogList" SelectionMode="Single" SelectionChanged="CatalogList_SelectionChanged">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnSpacing="12" Padding="12,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Make}" HorizontalTextAlignment="Center" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Model}" HorizontalTextAlignment="Center" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="{Binding DailyRateDisplay}" FontWeight="SemiBold" HorizontalTextAlignment="Center" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </ScrollViewer>
+        </TabViewItem>
+        <TabViewItem Header="Model features" IsClosable="False">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="24" Spacing="16" HorizontalAlignment="Stretch">
+                    <TextBlock Text="Model features" FontSize="26" FontWeight="SemiBold" />
+                    <TextBlock Text="Select a brand and model to view its registered specifications and equipment. Customer registration is not required." TextWrapping="Wrap" />
+                    <ComboBox x:Name="FeatureBrandPicker" Header="Brand" PlaceholderText="Select a brand" HorizontalAlignment="Stretch" SelectionChanged="FeatureBrandPicker_SelectionChanged" />
+                    <ComboBox x:Name="FeatureModelPicker" Header="Model" DisplayMemberPath="Model" PlaceholderText="Select a brand first" IsEnabled="False" HorizontalAlignment="Stretch" SelectionChanged="FeatureModelPicker_SelectionChanged" />
+                    <Button Content="Reload features" Click="ReloadFeatures_Click" />
+                    <InfoBar x:Name="FeaturesMessage" IsOpen="False" IsClosable="True" />
+                    <TextBlock x:Name="FeatureModelHeading" FontSize="20" FontWeight="SemiBold" Visibility="Collapsed" />
+                    <ItemsControl x:Name="FeaturesList">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <controls:FeatureWrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="14" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <FontIcon Glyph="{Binding IconGlyph}" FontSize="20" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" AutomationProperties.AccessibilityView="Raw" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap" VerticalAlignment="Center" MaxWidth="300" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </TabViewItem>
+    </TabView>
+</Window>

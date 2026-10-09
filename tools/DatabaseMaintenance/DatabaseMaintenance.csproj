@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.22" />
+    <Compile Include="../../CarRentalApplication/Data/CarDatabase.cs" Link="CarDatabase.cs" />
+    <Compile Include="../../CarRentalApplication/Data/CarModelFeaturesDatabase.cs" Link="CarModelFeaturesDatabase.cs" />
+    <Compile Include="../../CarRentalApplication/Models/Car.cs" Link="Car.cs" />
+    <Compile Include="../../CarRentalApplication/Models/CarRegistration.cs" Link="CarRegistration.cs" />
+    <Compile Include="../../CarRentalApplication/Models/ReservationRecord.cs" Link="ReservationRecord.cs" />
+    <Compile Include="../../CarRentalApplication/Models/MaintenanceRecord.cs" Link="MaintenanceRecord.cs" />
+    <Compile Include="../../CarRentalApplication/Models/CarCatalogItem.cs" Link="CarCatalogItem.cs" />
+    <Compile Include="../../CarRentalApplication/Models/CarModel.cs" Link="CarModel.cs" />
+    <Compile Include="../../CarRentalApplication/Models/AvailableCar.cs" Link="AvailableCar.cs" />
+    <Compile Include="../../CarRentalApplication/Models/Customer.cs" Link="Customer.cs" />
+    <Compile Include="../../CarRentalApplication/Data/CustomerDatabase.cs" Link="CustomerDatabase.cs" />
+    <Compile Include="../../CarRentalApplication/Data/AvailabilityDatabase.cs" Link="AvailabilityDatabase.cs" />
+    <Compile Include="../../CarRentalApplication/Data/MaintenanceDatabase.cs" Link="MaintenanceDatabase.cs" />
+  </ItemGroup>
+</Project>
