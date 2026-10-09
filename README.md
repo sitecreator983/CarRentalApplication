@@ -41,5 +41,6 @@ The certificate's private key is not distributed and must never be uploaded to G
 
 ## Project Structure
 
--`CarRentalApplication/` - WinUI 3 desktop application and source code
--`tools/DatabaseMaintenance/` - Utility tool for database maintenance and validation
+`CarRentalApplication/` - WinUI 3 desktop application and source code
+
+`tools/DatabaseMaintenance/` - Utility tool for database maintenance and validation
