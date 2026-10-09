@@ -19,6 +19,21 @@
 
 Στην πρώτη εκτέλεση, η εφαρμογή δημιουργεί τη βάση SQLite στον τοπικό φάκελο δεδομένων της εφαρμογής. Δεν απαιτείται ξεχωριστό αρχείο βάσης δεδομένων στο repository.
 
+## Εγκατάσταση από GitHub Releases
+
+Τα έτοιμα πακέτα εγκατάστασης διατίθενται στη σελίδα [Releases](https://github.com/sitecreator983/CarRentalApplication/releases/latest). Για δοκιμαστική εγκατάσταση εκτός Microsoft Store:
+
+1. Κατεβάστε τα `CarRentalApplication.cer` και `CarRentalApplication_x64.appinstaller` από το τελευταίο Release.
+2. Εμπιστευτείτε το δημόσιο πιστοποιητικό για τον τρέχοντα λογαριασμό Windows:
+
+   ```powershell
+   Import-Certificate -FilePath .\CarRentalApplication.cer -CertStoreLocation Cert:\CurrentUser\TrustedPeople
+   ```
+
+3. Ανοίξτε το `CarRentalApplication_x64.appinstaller` και επιλέξτε **Install**.
+
+Το πακέτο υπογράφεται με αυτοϋπογεγραμμένο πιστοποιητικό δοκιμών. Αυτό απαιτεί χειροκίνητη εμπιστοσύνη του πιστοποιητικού σε κάθε υπολογιστή· για ευρεία διανομή προτιμάται πιστοποιητικό από έμπιστη αρχή ή το Microsoft Store. Το ιδιωτικό κλειδί του πιστοποιητικού δεν διανέμεται και δεν πρέπει να ανέβει στο GitHub.
+
 ## Δομή
 
 - `CarRentalApplication/` — WinUI 3 desktop εφαρμογή και κώδικας

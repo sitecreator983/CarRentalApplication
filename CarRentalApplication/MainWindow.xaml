@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CarRentalApplication.Controls"
-    Title="Car Rental — Customer and vehicle">
+    Title="Car Rental Application">
     <Window.SystemBackdrop>
         <MicaBackdrop />
     </Window.SystemBackdrop>
